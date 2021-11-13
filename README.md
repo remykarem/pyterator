@@ -262,3 +262,49 @@ These gotchas pertain to mutability of the collections
 ## What this is not for
 
 Vectorised operations - use NumPy or other equivalent
+
+## API
+
+common
+
+- `map`
+- `enumerate`
+- `filter`
+- `for_each`
+- `filter_not`
+- `filter_map`
+
+order
+
+- `reverse`
+
+dimension change
+
+- `partition`
+- `flat_map`
+- `chunked`
+- `flatten`
+- `zip`
+
+positional
+
+- `skip`
+- `first`
+- `nth`
+- `take`
+
+collect
+
+- `to_list`, `to_gen`, `to_set`, `to_dict`
+
+reduce
+
+- `reduce`
+- `all`
+- `any`
+- `min`
+- `max`
+- `sum`
+- `prod`
+- `join`
+- `sample`

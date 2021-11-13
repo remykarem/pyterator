@@ -6,12 +6,15 @@ from functools import reduce as _reduce
 from more_itertools import chunked as _chunked
 from more_itertools import map_reduce as _map_reduce
 from more_itertools import sample as _sample
+from more_itertools import partition as _partition
+from more_itertools import islice_extended
 
 _map = map
 _filter = filter
 _sum = sum
 _max = max
 _min = min
+_zip = zip
 
 
 def iterate(iterable, deepcopy=False):
@@ -40,15 +43,27 @@ class _Pyterator:
 
     def __init__(self, iterable):
         self.__iterator = iter(iterable)
+        self.__push_front = None
 
     def __repr__(self):
         return f"<pyterator at {hex(id(self))}>"
-    
+
     def __iter__(self):
         return self.__iterator
-    
+
     def __next__(self):
-        return next(self.__iterator)
+        print("next")
+        if self.__push_front:
+            print(self.__push_front)
+            val = self.__push_front
+            self.__push_front = None
+            return next(self.__iterator, val)
+        else:
+            return next(self.__iterator)
+
+    def reverse(self):
+        self.__iterator = islice_extended(self.__iterator, -1, None, -1)
+        return self
 
     def map(self, fn: Callable, *rhs):
         if isinstance(fn, str):
@@ -65,14 +80,14 @@ class _Pyterator:
         self.__iterator = _starmap(fn, self.__iterator)
         return self
 
-    def filter(self, fn: Callable, *rhs):
-        if isinstance(fn, str):
-            fn = OPS[fn]
+    def filter(self, predicate_fn: Callable, *rhs):
+        if isinstance(predicate_fn, str):
+            predicate_fn = OPS[predicate_fn]
         if rhs:
             self.__iterator = _filter(
-                lambda lhs: fn(lhs, *rhs), self.__iterator)
+                lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
         else:
-            self.__iterator = _filter(fn, self.__iterator)
+            self.__iterator = _filter(predicate_fn, self.__iterator)
         return self
 
     def filter_not(self, fn: Callable, *rhs):
@@ -110,8 +125,13 @@ class _Pyterator:
         self.__iterator = chain.from_iterable(self.__iterator)
         return self
 
-    def partition(self):
-        pass
+    def partition(self, predicate_fn: Callable, *rhs):
+        if isinstance(predicate_fn, str):
+            predicate_fn = OPS[predicate_fn]
+        if rhs:
+            return _partition(lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
+        else:
+            return _partition(predicate_fn, self.__iterator)
 
     def chunked(self, n):
         self.__iterator = _chunked(self.__iterator, n)
@@ -120,8 +140,7 @@ class _Pyterator:
     # Positional
 
     def skip(self, n: int):
-        for _ in range(n):
-            next(self)
+        self.__iterator = islice(self.__iterator, n, None, 1)
         return self
 
     def first(self, default=None):
@@ -129,6 +148,10 @@ class _Pyterator:
 
     def nth(self, n, default=None):
         return next(islice(self.__iterator, n, None), default)
+
+    def take(self, n: int):
+        self.__iterator = islice(self.__iterator, n)
+        return self
 
     ### Collection methods ###
 
@@ -139,10 +162,14 @@ class _Pyterator:
         for x in self.__iterator:
             yield x
 
+    def zip(self, iterable):
+        self.__iterator = zip(self.__iterator, iterable)
+        return self
+
     def to_set(self) -> set:
         """
         Return a set from the iterable's elements.
-        
+
         Returns:
             set: 
         """
@@ -213,7 +240,7 @@ class _Pyterator:
         """
         return _sum(self.__iterator)
 
-    def mul(self) -> Union[int, float]:
+    def prod(self) -> Union[int, float]:
         """Gets the product of all elements in the iterable.
 
         Returns:
