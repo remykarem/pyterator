@@ -1,20 +1,15 @@
-from typing import Any, Callable, Generator, Union
-from itertools import chain, islice
-from itertools import starmap as _starmap
-from pyterator.operations import OPS
-from functools import reduce as _reduce
-from more_itertools import chunked as _chunked
-from more_itertools import map_reduce as _map_reduce
-from more_itertools import sample as _sample
-from more_itertools import partition as _partition
-from more_itertools import islice_extended
+from __future__ import annotations
 
-_map = map
-_filter = filter
-_sum = sum
-_max = max
-_min = min
-_zip = zip
+from functools import reduce
+from collections.abc import Iterable
+from typing import Any, Callable, Tuple, Union
+from itertools import chain, filterfalse, islice, tee, starmap
+
+from more_itertools import (
+    chunked, map_reduce, sample, partition, islice_extended
+)
+
+from pyterator.operations import OPS
 
 
 def iterate(iterable, deepcopy=False):
@@ -41,18 +36,17 @@ def _reverse(iterable):
 
 class _Pyterator:
 
-    def __init__(self, iterable):
-        self.__iterator = iter(iterable)
+    def __init__(self, iterable: Iterable):
+        self.__iterator = iterable
         self.__push_front = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<pyterator at {hex(id(self))}>"
 
     def __iter__(self):
         return self.__iterator
 
-    def __next__(self):
-        print("next")
+    def __next__(self) -> Any:
         if self.__push_front:
             print(self.__push_front)
             val = self.__push_front
@@ -61,63 +55,69 @@ class _Pyterator:
         else:
             return next(self.__iterator)
 
-    def reverse(self):
+    def reverse(self) -> _Pyterator:
         self.__iterator = islice_extended(self.__iterator, -1, None, -1)
         return self
 
-    def map(self, fn: Callable, *rhs):
+    def map(self, fn: Callable, *rhs) -> _Pyterator:
         if isinstance(fn, str):
             fn = OPS[fn]
         if rhs:
-            self.__iterator = _map(lambda lhs: fn(lhs, *rhs), self.__iterator)
+            self.__iterator = map(lambda lhs: fn(lhs, *rhs), self.__iterator)
         else:
-            self.__iterator = _map(lambda lhs: fn(lhs), self.__iterator)
+            self.__iterator = map(lambda lhs: fn(lhs), self.__iterator)
         return self
 
-    def starmap(self, fn):
+    def starmap(self, fn) -> _Pyterator:
         if isinstance(fn, str):
             fn = OPS[fn]
-        self.__iterator = _starmap(fn, self.__iterator)
+        self.__iterator = starmap(fn, self.__iterator)
         return self
 
-    def filter(self, predicate_fn: Callable, *rhs):
+    def filter(self, predicate_fn: Callable, *rhs) -> _Pyterator:
         if isinstance(predicate_fn, str):
             predicate_fn = OPS[predicate_fn]
         if rhs:
-            self.__iterator = _filter(
+            self.__iterator = filter(
                 lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
         else:
-            self.__iterator = _filter(predicate_fn, self.__iterator)
+            self.__iterator = filter(predicate_fn, self.__iterator)
         return self
 
-    def filter_not(self, fn: Callable, *rhs):
+    def filter_not(self, fn: Callable, *rhs) -> _Pyterator:
         if isinstance(fn, str):
             fn = OPS[fn]
         if rhs:
-            self.__iterator = _filter(
-                lambda lhs: not fn(lhs, *rhs), self.__iterator)
+            self.__iterator = filterfalse(
+                lambda lhs: fn(lhs, *rhs), self.__iterator)
         else:
-            self.__iterator = _filter(lambda: not fn(), self.__iterator)
+            self.__iterator = filterfalse(fn, self.__iterator)
         return self
 
-    def filter_map(self, fn: Callable, *rhs):
+    def filter_map(self, fn: Callable, *rhs) -> _Pyterator:
         self.map(fn, *rhs)
-        self.__iterator = _filter(lambda x: x, self.__iterator)
+        self.__iterator = filter(lambda x: x, self.__iterator)
         return self
 
-    def for_each(self, fn: Callable, *rhs):
-        if rhs:
-            fn(*rhs)
-        else:
-            fn()
+    def for_each(self, fn: Callable) -> None:
+        for x in self.__iterator:
+            fn(x)
 
-    def enumerate(self):
+    def enumerate(self) -> _Pyterator:
         self.__iterator = enumerate(self.__iterator)
         return self
 
-    ### Advanced Operations ###
+    ### Dimensional ###
 
-    def flat_map(self, fn: Callable, *rhs):
+    def chain(self, *iterables) -> _Pyterator:
+        self.__iterator = chain(self.__iterator, *iterables)
+        return self
+
+    def zip(self, iterable) -> _Pyterator:
+        self.__iterator = zip(self.__iterator, iterable)
+        return self
+
+    def flat_map(self, fn: Callable, *rhs) -> _Pyterator:
         return self.map(fn, *rhs).flatten()
 
     def flatten(self):
@@ -125,31 +125,31 @@ class _Pyterator:
         self.__iterator = chain.from_iterable(self.__iterator)
         return self
 
-    def partition(self, predicate_fn: Callable, *rhs):
+    def partition(self, predicate_fn: Callable, *rhs) -> Tuple[_Pyterator, _Pyterator]:
         if isinstance(predicate_fn, str):
             predicate_fn = OPS[predicate_fn]
         if rhs:
-            return _partition(lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
+            return partition(lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
         else:
-            return _partition(predicate_fn, self.__iterator)
+            return partition(predicate_fn, self.__iterator)
 
-    def chunked(self, n):
-        self.__iterator = _chunked(self.__iterator, n)
+    def chunked(self, n) -> _Pyterator:
+        self.__iterator = chunked(self.__iterator, n)
         return self
 
     # Positional
 
-    def skip(self, n: int):
+    def skip(self, n: int) -> _Pyterator:
         self.__iterator = islice(self.__iterator, n, None, 1)
         return self
 
-    def first(self, default=None):
+    def first(self, default=None) -> Any:
         return next(self.__iterator, default)
 
-    def nth(self, n, default=None):
+    def nth(self, n, default=None) -> Any:
         return next(islice(self.__iterator, n, None), default)
 
-    def take(self, n: int):
+    def take(self, n: int) -> _Pyterator:
         self.__iterator = islice(self.__iterator, n)
         return self
 
@@ -157,14 +157,6 @@ class _Pyterator:
 
     def to_list(self) -> list:
         return list(self.__iterator)
-
-    def to_gen(self) -> Generator:
-        for x in self.__iterator:
-            yield x
-
-    def zip(self, iterable):
-        self.__iterator = zip(self.__iterator, iterable)
-        return self
 
     def to_set(self) -> set:
         """
@@ -179,21 +171,21 @@ class _Pyterator:
         "Return a dictionary from the iterable's elements. The keys are the elements."
         return dict(self.__iterator)
 
-    def groupby(self, *args):
-        return _map_reduce(self.__iterator, *args)
+    def groupby(self, *args) -> dict:
+        return map_reduce(self.__iterator, *args)
 
     ### Reduce functions ###
 
-    def sample(self, k: int = 1):
-        return _sample(self.__iterator, k)
+    def sample(self, k: int = 1) -> Any:
+        return sample(self.__iterator, k)
 
-    def reduce(self, fn: Callable, *rhs):
+    def reduce(self, fn: Callable, *rhs) -> Any:
         if isinstance(fn, str):
             fn = OPS[fn]
         if rhs:
-            self.__iterator = _reduce(fn(self.__iterator, *rhs))
+            self.__iterator = reduce(fn(self.__iterator, *rhs))
         else:
-            self.__iterator = _reduce(fn(self.__iterator))
+            self.__iterator = reduce(fn(self.__iterator))
         return self
 
     def all(self) -> bool:
@@ -222,7 +214,7 @@ class _Pyterator:
         Returns:
             Union[int, float]: Max of all elements in the iterable.
         """
-        return _max(self.__iterator)
+        return max(self.__iterator)
 
     def min(self) -> Union[int, float]:
         """Gets the min of all elements in the iterable.
@@ -230,7 +222,7 @@ class _Pyterator:
         Returns:
             Union[int, float]: Min of all elements in the iterable.
         """
-        return _min(self.__iterator)
+        return min(self.__iterator)
 
     def sum(self) -> Union[int, float]:
         """Gets the sum of all elements in the iterable.
@@ -238,7 +230,7 @@ class _Pyterator:
         Returns:
             Union[int, float]: Sum of all elements in the iterable.
         """
-        return _sum(self.__iterator)
+        return sum(self.__iterator)
 
     def prod(self) -> Union[int, float]:
         """Gets the product of all elements in the iterable.
@@ -246,7 +238,7 @@ class _Pyterator:
         Returns:
             Union[int, float]: Product of all elements in the iterable.
         """
-        return _reduce(lambda x, y: x * y, self.__iterator)
+        return reduce(lambda x, y: x * y, self.__iterator)
 
     def join(self, sep: str = "") -> str:
         """Concatenate any number of strings.
@@ -261,13 +253,23 @@ class _Pyterator:
 
     ### Debug ###
 
-    def debug(self):
+    def debug(self) -> None:
+        """
+        Creates a REPL-like interface for debugging. Best used in an IPython-like environment.
+        Not for use in production.
+
+        Current iterator will not be consumed because an independent iterator is returned.
+        """
+        # Create an independent iterator for debugging
+        self.__iterator, iterator = tee(self.__iterator)
+
         print("Hit ENTER for next value, q+ENTER to quit.")
         while True:
             v = input()
             if v.lower() == "q":
                 break
             try:
-                print(f"> {next(self)}", end=" ")
+                print(f"> {next(iterator)}", end=" ")
             except StopIteration:
+                print("End of iterator")
                 break
