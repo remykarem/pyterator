@@ -25,7 +25,7 @@ Readable transformation functions, as opposed to Lisp-ish Polish notation-esque 
 ## Installation
 
 ```bash
-pip install https://github.com/remykarem/pyterator.git
+pip install git+https://github.com/remykarem/pyterator.git#egg=pyterator
 ```
 
 ## Quick start
