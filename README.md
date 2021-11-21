@@ -295,7 +295,7 @@ positional
 
 collect
 
-- `to_list`, `to_gen`, `to_set`, `to_dict`
+- `to_list`, `to_set`, `to_dict`
 
 reduce
 
@@ -314,4 +314,4 @@ reduce
 Note that these libraries focus on fluent method chaining.
 
 - [PyFunctional](https://github.com/EntilZha/PyFunctional)
-- [fluent]
+- [fluent](https://github.com/dwt/fluent)
