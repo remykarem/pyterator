@@ -308,3 +308,10 @@ reduce
 - `prod`
 - `join`
 - `sample`
+
+## Similar libraries
+
+Note that these libraries focus on fluent method chaining.
+
+- [PyFunctional](https://github.com/EntilZha/PyFunctional)
+- [fluent]
