@@ -229,12 +229,14 @@ List comprehension
 Pyterator
 
 ```python
->>> (iterate(texts)
+>>> (
+...     iterate(texts)
 ...     .map(str.strip)
 ...     .map(str.lower)
 ...     .flat_map(str.split)
 ...     .filter(lambda word: word not in stopwords)
-...     .to_set())
+...     .to_set()
+... )
 {'peck', 'pepper', 'peter', 'picked', 'pickled', 'piper'}
 ```
 
