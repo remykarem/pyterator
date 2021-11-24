@@ -34,7 +34,7 @@ class _Pyterator:
         return self
 
     def map(self, fn: Callable) -> _Pyterator:
-        self.__iterator = map(lambda lhs: fn(lhs), self.__iterator)
+        self.__iterator = map(fn, self.__iterator)
         return self
 
     def starmap(self, fn: Callable) -> _Pyterator:
@@ -90,7 +90,8 @@ class _Pyterator:
         return self
 
     def partition(self, predicate_fn: Callable) -> Tuple[_Pyterator, _Pyterator]:
-        return partition(predicate_fn, self.__iterator)
+        items_false, items_true = partition(predicate_fn, self.__iterator)
+        return _Pyterator(items_true), _Pyterator(items_false)
 
     def chunked(self, n: int) -> _Pyterator:
         self.__iterator = chunked(self.__iterator, n)
