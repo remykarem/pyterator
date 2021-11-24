@@ -4,9 +4,8 @@ Write fluent functional programming idioms in Python.
 
 - Chain operations like `map`, `reduce`, `filter_map`
 - Lazy evaluation
-- More accessible operators like `>` and `==`
 
-Readable transformation functions, as opposed to Lisp-ish Polish notation-esque map filter functions.
+Readable transformation functions, as opposed to Lisp-ish prefix notation-esque map filter functions.
 
 ---
 
@@ -88,7 +87,7 @@ foldl (*) 1
         (map (\x -> x+1) [1, 2, 3, 4]))
 ```
 
-which are languages where prefix notation is their syntax.
+which are languages where prefix notation is their natural syntax.
 
 List comprehensions, while idiomatic and commonplace among  developers, can be hard to read at times.
 
@@ -129,7 +128,7 @@ Since Python's iterator does not have methods `map`, `reduce`, we implemented ou
 )
 ```
 
-iterator, 
+iterator,
 
 It is also a builder function, which returns a `_Pyterator` instance that implements `__next__`.
 
@@ -153,12 +152,6 @@ Lazy. Reduce operations and to_list() operations will 'materialise' your transfo
 Pyterator
 
 ```python
->>> iterate(nums).map("**", 2).to_list()
-```
-
-or
-
-```python
 >>> iterate(nums).map(lambda x: x**2).to_list()
 ```
 
@@ -180,12 +173,6 @@ Pyterator
 
 ```python
 >>> iterate(nums).filter(lambda x: x > 3).to_list()
-```
-
-or
-
-```python
->>> iterate(nums).filter(">", 3).to_list()
 ```
 
 List comprehension
@@ -251,7 +238,7 @@ Pyterator
 {'peck', 'pepper', 'peter', 'picked', 'pickled', 'piper'}
 ```
 
-## Ins
+## Inspired by
 
 https://doc.rust-lang.org/std/iter/trait.Iterator.html
 
@@ -271,8 +258,9 @@ common
 - `enumerate`
 - `filter`
 - `for_each`
-- `filter_not`
+- `filterfalse`
 - `filter_map`
+- `starmap`
 
 order
 
@@ -285,6 +273,7 @@ dimension change
 - `chunked`
 - `flatten`
 - `zip`
+- `chain`
 
 positional
 
@@ -295,7 +284,10 @@ positional
 
 collect
 
-- `to_list`, `to_set`, `to_dict`
+- `to_list`
+- `to_set`
+- `to_dict`
+- `groupby`
 
 reduce
 

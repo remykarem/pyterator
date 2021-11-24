@@ -9,8 +9,6 @@ from more_itertools import (
     chunked, map_reduce, sample, partition, islice_extended
 )
 
-from pyterator.operations import OPS
-
 
 def iterate(iterable: Iterable[Any]) -> _Pyterator:
     """Similar to the builtin `iter` object"""
@@ -35,22 +33,15 @@ class _Pyterator:
         self.__iterator = islice_extended(self.__iterator, -1, None, -1)
         return self
 
-    def map(self, fn: Callable, *rhs: Any) -> _Pyterator:
-        if isinstance(fn, str):
-            fn = OPS[fn]
-        if rhs:
-            self.__iterator = map(lambda lhs: fn(lhs, *rhs), self.__iterator)
-        else:
-            self.__iterator = map(lambda lhs: fn(lhs), self.__iterator)
+    def map(self, fn: Callable) -> _Pyterator:
+        self.__iterator = map(lambda lhs: fn(lhs), self.__iterator)
         return self
 
-    def starmap(self, fn) -> _Pyterator:
-        if isinstance(fn, str):
-            fn = OPS[fn]
+    def starmap(self, fn: Callable) -> _Pyterator:
         self.__iterator = starmap(fn, self.__iterator)
         return self
 
-    def filter(self, predicate_fn: Callable, *rhs: Any) -> _Pyterator:
+    def filter(self, predicate_fn: Callable) -> _Pyterator:
         """Similar to the builtin filter. Returns an iterator yielding
         items of iterable for which function(item) is true. If function
         is None, return items that are true.
@@ -61,27 +52,15 @@ class _Pyterator:
         Returns:
             _Pyterator: Pyterator object
         """
-        if isinstance(predicate_fn, str):
-            predicate_fn = OPS[predicate_fn]
-        if rhs:
-            self.__iterator = filter(
-                lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
-        else:
-            self.__iterator = filter(predicate_fn, self.__iterator)
+        self.__iterator = filter(predicate_fn, self.__iterator)
         return self
 
-    def filter_not(self, fn: Callable, *rhs: Any) -> _Pyterator:
-        if isinstance(fn, str):
-            fn = OPS[fn]
-        if rhs:
-            self.__iterator = filterfalse(
-                lambda lhs: fn(lhs, *rhs), self.__iterator)
-        else:
-            self.__iterator = filterfalse(fn, self.__iterator)
+    def filterfalse(self, fn: Callable) -> _Pyterator:
+        self.__iterator = filterfalse(fn, self.__iterator)
         return self
 
-    def filter_map(self, fn: Callable, *rhs: Any) -> _Pyterator:
-        self.map(fn, *rhs)
+    def filter_map(self, fn: Callable) -> _Pyterator:
+        self.map(fn)
         self.__iterator = filter(lambda x: x, self.__iterator)
         return self
 
@@ -103,21 +82,15 @@ class _Pyterator:
         self.__iterator = zip(self.__iterator, iterable)
         return self
 
-    def flat_map(self, fn: Callable, *rhs: Any) -> _Pyterator:
-        return self.map(fn, *rhs).flatten()
+    def flat_map(self, fn: Callable) -> _Pyterator:
+        return self.map(fn).flatten()
 
     def flatten(self):
-        "https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-a-list-of-lists"
         self.__iterator = chain.from_iterable(self.__iterator)
         return self
 
-    def partition(self, predicate_fn: Callable, *rhs: Any) -> Tuple[_Pyterator, _Pyterator]:
-        if isinstance(predicate_fn, str):
-            predicate_fn = OPS[predicate_fn]
-        if rhs:
-            return partition(lambda lhs: predicate_fn(lhs, *rhs), self.__iterator)
-        else:
-            return partition(predicate_fn, self.__iterator)
+    def partition(self, predicate_fn: Callable) -> Tuple[_Pyterator, _Pyterator]:
+        return partition(predicate_fn, self.__iterator)
 
     def chunked(self, n: int) -> _Pyterator:
         self.__iterator = chunked(self.__iterator, n)
@@ -137,7 +110,7 @@ class _Pyterator:
         self.__iterator = islice(self.__iterator, n, None, 1)
         return self
 
-    def first(self, default=None) -> Any:
+    def first(self, default: Any = None) -> Any:
         """Returns the first element of the iterator.
 
         Args:
@@ -206,7 +179,7 @@ class _Pyterator:
         of unknown length."""
         return sample(self.__iterator, k)
 
-    def reduce(self, fn: Callable, *rhs: Any) -> Any:
+    def reduce(self, fn: Callable, initial: Any = None) -> Any:
         """
         Similar to `functools.reduce`. Apply a function of two arguments
         cumulatively to the items of a sequence from left to right.
@@ -217,13 +190,10 @@ class _Pyterator:
         Returns:
             Any: result of the reduction
         """
-        if isinstance(fn, str):
-            fn = OPS[fn]
-        if rhs:
-            self.__iterator = reduce(fn(self.__iterator, *rhs))
+        if initial:
+            return reduce(fn, self.__iterator, initial)
         else:
-            self.__iterator = reduce(fn(self.__iterator))
-        return self
+            return reduce(fn, self.__iterator)
 
     def all(self) -> bool:
         """Return True if bool(x) is True for all values x in the iterable.

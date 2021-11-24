@@ -5,7 +5,7 @@ setup(
     name="Pyterator",
     description="Pyterator helps you write fluent functional programming "
         "idioms in Python via chaining",
-    version="0.0.1-alpha",
+    version="0.0.1a1",
     url="https://github.com/remykarem/pyterator",
     author="Raimi bin Karim",
     author_email="raimi.bkarim@gmail.com",
