@@ -71,7 +71,7 @@ reduce(lambda x,y: x * y,
         map(lambda x: x+1, [1, 2, 3, 4])), 1)
 ```
 
-which looks similar to Clojure (or Lisp-like)
+which looks similar to Clojure (or Lisp-like) (note that Clojure has a more readable pipeline syntax)
 
 ```clojure
 (reduce *
@@ -312,3 +312,5 @@ Note that these libraries focus on fluent method chaining.
 
 - [PyFunctional](https://github.com/EntilZha/PyFunctional)
 - [fluent](https://github.com/dwt/fluent)
+- [Simple Smart Pipe](https://github.com/sspipe/sspipe)
+- [pyxtension](https://github.com/asuiu/pyxtension)
