@@ -263,6 +263,8 @@ common
 - `filterfalse`
 - `filter_map`
 - `starmap`
+- `starfilter`
+- `star_map_filter`
 
 order
 
@@ -272,6 +274,7 @@ dimension change
 
 - `partition`
 - `flat_map`
+- `star_flat_map`
 - `chunked`
 - `flatten`
 - `zip`

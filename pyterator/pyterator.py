@@ -54,6 +54,10 @@ class _Pyterator:
         """
         self.__iterator = filter(predicate_fn, self.__iterator)
         return self
+    
+    def starfilter(self, fn: Callable) -> _Pyterator:
+        self.__iterator = filter(lambda args: fn(*args), self.__iterator)
+        return self
 
     def filterfalse(self, fn: Callable) -> _Pyterator:
         self.__iterator = filterfalse(fn, self.__iterator)
@@ -61,6 +65,11 @@ class _Pyterator:
 
     def filter_map(self, fn: Callable) -> _Pyterator:
         self.map(fn)
+        self.__iterator = filter(lambda x: x, self.__iterator)
+        return self
+
+    def star_filter_map(self, fn: Callable) -> _Pyterator:
+        self.starmap(fn)
         self.__iterator = filter(lambda x: x, self.__iterator)
         return self
 
@@ -84,6 +93,9 @@ class _Pyterator:
 
     def flat_map(self, fn: Callable) -> _Pyterator:
         return self.map(fn).flatten()
+
+    def star_flat_map(self, fn: Callable) -> _Pyterator:
+        return self.starmap(fn).flatten()
 
     def flatten(self):
         self.__iterator = chain.from_iterable(self.__iterator)
