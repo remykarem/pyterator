@@ -6,7 +6,8 @@ from typing import Any, Callable, Iterator, Tuple, Union
 from itertools import chain, filterfalse, islice, tee, starmap
 
 from more_itertools import (
-    chunked, map_reduce, sample, partition, islice_extended
+    chunked, map_reduce, sample, partition, islice_extended,
+    split_at
 )
 
 
@@ -107,6 +108,10 @@ class _Pyterator:
 
     def chunked(self, n: int) -> _Pyterator:
         self.__iterator = chunked(self.__iterator, n)
+        return self
+    
+    def split_at(self, predicate_fn: Callable) -> _Pyterator:
+        self.__iterator = split_at(self.__iterator, predicate_fn)
         return self
 
     # Positional
@@ -270,6 +275,10 @@ class _Pyterator:
             str: Concatenated string
         """
         return sep.join(self.__iterator)
+    
+    def custom(self, fn: Callable, *args: Any, **kwargs: Any) -> _Pyterator:
+        self.__iterator = fn(self.__iterator, *args, **kwargs)
+        return self
 
     ### Debug ###
 
