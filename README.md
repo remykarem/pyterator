@@ -45,9 +45,9 @@ Chain operations
 >>> text = ["hello", "my", "love"]
 >>> (
 ...     iterate(text)
-...     .filter_not("in", ["a", "my"])
+...     .filterfalse(lambda x: x in ["a", "my"])
 ...     .map(str.upper)
-...     .map("+", "!")
+...     .map(lambda x: x+"!")
 ...     .to_list()
 ... )
 ['HELLO!', 'LOVE!']
