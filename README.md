@@ -71,12 +71,12 @@ reduce(lambda x,y: x * y,
         map(lambda x: x+1, [1, 2, 3, 4])), 1)
 ```
 
-which looks similar to Clojure (or Lisp-like) (note that Clojure has a more readable pipeline syntax)
+which looks similar to Common Lisp
 
-```clojure
-(reduce *
-    (filter even?
-        (map (fn [x] (+ 1 x)) '(1 2 3 4))))
+```lisp
+(reduce #'*
+    (remove-if #'evenp
+        (mapcar (lambda (x) (1+ x)) '(1 2 3 4))))
 ```
 
 and Haskell
