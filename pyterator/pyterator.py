@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import reduce
 from collections.abc import Iterable
 from typing import Any, Callable, Iterator, Tuple, Union
-from itertools import chain, filterfalse, islice, tee, starmap
+from itertools import chain, filterfalse, islice, product, tee, starmap
 
 from more_itertools import (
     chunked, map_reduce, sample, partition, islice_extended,
@@ -112,6 +112,11 @@ class _Pyterator:
     
     def split_at(self, predicate_fn: Callable) -> _Pyterator:
         self.__iterator = split_at(self.__iterator, predicate_fn)
+        return self
+    
+    def product(self, *iterables: Iterable):
+        """Cartesian product"""
+        self.__iterator = product(self.__iterator, *iterables)
         return self
 
     # Positional
