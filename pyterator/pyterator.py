@@ -4,6 +4,7 @@ from functools import reduce
 from collections.abc import Iterable
 from typing import Any, Callable, Iterator, Tuple, Union
 from itertools import chain, filterfalse, islice, product, tee, starmap
+from itertools import tee as _tee
 
 from more_itertools import (
     chunked, map_reduce, sample, partition, islice_extended,
@@ -14,6 +15,12 @@ from more_itertools import (
 def iterate(iterable: Iterable[Any]) -> _Pyterator:
     """Similar to the builtin `iter` object"""
     return _Pyterator(iterable)
+
+
+def tee(iterable: Iterable[Any], n: int = 2) -> _Pyterator:
+    """Similar to `itertools.tee`"""
+    iters = _tee(iterable, n)
+    return [_Pyterator(it) for it in iters]
 
 
 class _Pyterator:
@@ -295,7 +302,7 @@ class _Pyterator:
         Current iterator will not be consumed because an independent iterator is returned.
         """
         # Create an independent iterator for debugging
-        self.__iterator, iterator = tee(self.__iterator)
+        self.__iterator, iterator = _tee(self.__iterator)
 
         print("Hit ENTER for next value, q+ENTER to quit.")
         while True:
