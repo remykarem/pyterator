@@ -8,7 +8,7 @@ from itertools import tee as _tee
 
 from more_itertools import (
     chunked, map_reduce, sample, partition, islice_extended,
-    split_at
+    split_at, windowed
 )
 
 
@@ -124,6 +124,10 @@ class _Pyterator:
     def product(self, *iterables: Iterable):
         """Cartesian product"""
         self.__iterator = product(self.__iterator, *iterables)
+        return self
+    
+    def windowed(self, window_size: int, step: int, fillvalue: Optional[Any] = None):
+        self.__iterator = windowed(self.__iterator, window_size, step=step, fillvalue=fillvalue)
         return self
 
     # Positional
