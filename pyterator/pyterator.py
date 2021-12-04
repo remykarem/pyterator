@@ -26,7 +26,7 @@ def tee(iterable: Iterable[Any], n: int = 2) -> _Pyterator:
 class _Pyterator:
 
     def __init__(self, iterable: Iterable):
-        self.__iterator = iterable
+        self.__iterator = iter(iterable)
 
     def __repr__(self) -> str:
         return f"<pyterator at {hex(id(self))}>"
