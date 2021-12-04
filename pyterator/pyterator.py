@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from functools import reduce
 from collections.abc import Iterable
-from typing import Any, Callable, Iterator, Tuple, Union
-from itertools import chain, filterfalse, islice, product, tee, starmap
+from typing import Any, Callable, Iterator, Tuple, Union, Optional
+from itertools import chain, filterfalse, islice, product, starmap
 from itertools import tee as _tee
 
 from more_itertools import (
@@ -144,7 +144,7 @@ class _Pyterator:
         self.__iterator = islice(self.__iterator, n, None, 1)
         return self
 
-    def first(self, default: Any = None) -> Any:
+    def first(self, default: Optional[Any] = None) -> Any:
         """Returns the first element of the iterator.
 
         Args:
@@ -156,7 +156,7 @@ class _Pyterator:
         """
         return next(self.__iterator, default)
 
-    def nth(self, n: int, default: Any = None) -> Any:
+    def nth(self, n: int, default: Optional[Any] = None) -> Any:
         """Returns the nth element of the iterator.
         If n is larger than the length of the iterator, return default.
 
@@ -213,7 +213,7 @@ class _Pyterator:
         of unknown length."""
         return sample(self.__iterator, k)
 
-    def reduce(self, fn: Callable, initial: Any = None) -> Any:
+    def reduce(self, fn: Callable, initial: Optional[Any] = None) -> Any:
         """
         Similar to `functools.reduce`. Apply a function of two arguments
         cumulatively to the items of a sequence from left to right.
