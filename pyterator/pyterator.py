@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import reduce
 from collections.abc import Iterable
-from typing import Any, Callable, Iterator, Tuple, Union, Optional
+from typing import Any, Callable, Iterator, List, Tuple, Union, Optional
 from itertools import chain, filterfalse, islice, product, starmap
 from itertools import tee as _tee
 
@@ -17,7 +17,7 @@ def iterate(iterable: Iterable[Any]) -> _Pyterator:
     return _Pyterator(iterable)
 
 
-def tee(iterable: Iterable[Any], n: int = 2) -> _Pyterator:
+def tee(iterable: Iterable[Any], n: int = 2) -> List[_Pyterator]:
     """Similar to `itertools.tee`"""
     iters = _tee(iterable, n)
     return [_Pyterator(it) for it in iters]
@@ -38,21 +38,44 @@ class _Pyterator:
         return next(self.__iterator)
 
     def reverse(self) -> _Pyterator:
+        """Reverses the order of the elements in the underlying iterator
+
+        Returns:
+            _Pyterator: _Pyterator object
+        """
         self.__iterator = islice_extended(self.__iterator, -1, None, -1)
         return self
 
     def map(self, fn: Callable) -> _Pyterator:
+        """Similar to the builtin `map` object. Returns an iterator
+        yielding the results of applying the function to the items of
+        iterable.
+
+        Args:
+            fn (Callable): Function to apply to each item
+
+        Returns:
+            _Pyterator: _Pyterator object
+        """
         self.__iterator = map(fn, self.__iterator)
         return self
 
     def starmap(self, fn: Callable) -> _Pyterator:
+        """Similar to the `itertools.starmap` object. Applies function to
+        arguments obtained from every item in the underlying iterator.
+
+        Args:
+            fn (Callable): Function to apply to each item
+
+        Returns:
+            _Pyterator: _Pyterator object
+        """
         self.__iterator = starmap(fn, self.__iterator)
         return self
 
     def filter(self, predicate_fn: Callable) -> _Pyterator:
-        """Similar to the builtin filter. Returns an iterator yielding
-        items of iterable for which function(item) is true. If function
-        is None, return items that are true.
+        """Similar to the builtin `filter`. Yields items of iterable for which
+        function(item) is true. If function is None, return items that are true.
 
         Args:
             predicate_fn (Callable): Predicate
@@ -64,6 +87,15 @@ class _Pyterator:
         return self
     
     def starfilter(self, fn: Callable) -> _Pyterator:
+        """Similar to the builtin `filter`. Yields items of iterable for which
+        function(*item) is true. If function is None, return items that are true.
+
+        Args:
+            fn (Callable): Predicate
+
+        Returns:
+            _Pyterator: _Pyterator object
+        """
         self.__iterator = filter(lambda args: fn(*args), self.__iterator)
         return self
 
@@ -85,8 +117,17 @@ class _Pyterator:
         for x in self.__iterator:
             fn(x)
 
-    def enumerate(self) -> _Pyterator:
-        self.__iterator = enumerate(self.__iterator)
+    def enumerate(self, start: int = 0) -> _Pyterator:
+        """Similar to the builtin `enumerate` object. Yields a tuple containing
+        an index and a value from the iterable.
+
+        Args:
+            start (int, optional): Start index. Defaults to 0.
+
+        Returns:
+            _Pyterator: Pyterator object
+        """
+        self.__iterator = enumerate(self.__iterator, start)
         return self
 
     ### Dimensional ###
@@ -187,19 +228,27 @@ class _Pyterator:
     ### Collection methods ###
 
     def to_list(self) -> list:
+        """
+        Returns a list from the iterable's elements.
+
+        Returns:
+            list: List of elements
+        """
         return list(self.__iterator)
 
     def to_set(self) -> set:
         """
-        Return a set from the iterable's elements.
+        Returns a set from the iterable's elements.
 
         Returns:
-            set: 
+            set: Set of elements
         """
         return set(self.__iterator)
 
     def to_dict(self) -> dict:
-        "Return a dictionary from the iterable's elements. The keys are the elements."
+        """
+        Returns a dictionary from the iterable's elements. The keys are the elements.
+        """
         return dict(self.__iterator)
 
     def groupby(self, *args) -> dict:
