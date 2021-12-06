@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import reduce
+from collections import Counter
 from collections.abc import Iterable
 from typing import Any, Callable, Iterator, List, Tuple, Union, Optional
 from itertools import chain, filterfalse, islice, product, starmap
@@ -250,6 +251,12 @@ class _Pyterator:
         Returns a dictionary from the iterable's elements. The keys are the elements.
         """
         return dict(self.__iterator)
+
+    def to_counter(self) -> dict:
+        """
+        Returns a count from the iterable's elements. The keys are the elements.
+        """
+        return Counter(self.__iterator)
 
     def groupby(self, *args) -> dict:
         return map_reduce(self.__iterator, *args)
