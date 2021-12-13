@@ -140,6 +140,8 @@ class _Pyterator:
         self.__iterator = enumerate(self.__iterator, start)
         return self
 
+
+
     ### Dimensional ###
 
     def chain(self, *iterables: Iterable) -> _Pyterator:
@@ -180,6 +182,12 @@ class _Pyterator:
     def windowed(self, window_size: int, step: int, fillvalue: Optional[Any] = None):
         self.__iterator = windowed(self.__iterator, window_size, step=step, fillvalue=fillvalue)
         return self
+
+    def unique_everseen(self, key=None) -> _Pyterator:
+        """
+        Yield unique elements, preserving order. Remember all elements ever seen.
+        """
+        return _Pyterator(_unique_everseen(self.__iterator, key))
 
     # Positional
 
@@ -383,3 +391,23 @@ class _Pyterator:
             except StopIteration:
                 print("End of iterator")
                 break
+
+def _unique_everseen(iterable, key=None):
+    """From https://docs.python.org/3/library/itertools.html
+    List unique elements, preserving order. Remember all elements ever seen.
+
+    >>> _unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    >>> _unique_everseen('ABBCcAD', str.lower) --> A B C D
+    """
+    seen = set()
+    seen_add = seen.add
+    if key is None:
+        for element in filterfalse(seen.__contains__, iterable):
+            seen_add(element)
+            yield element
+    else:
+        for element in iterable:
+            k = key(element)
+            if k not in seen:
+                seen_add(k)
+                yield element
