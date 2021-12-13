@@ -105,6 +105,15 @@ class _Pyterator:
         return self
 
     def filter_map(self, fn: Callable) -> _Pyterator:
+        """
+        Yields items of iterable for which fn(item) is truthy.
+
+        Args:
+            fn (Callable): Function to apply to each item
+        
+        Returns:
+            _Pyterator: _Pyterator object
+        """
         self.map(fn)
         self.__iterator = filter(lambda x: x, self.__iterator)
         return self
