@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import reduce
 from collections import Counter
 from collections.abc import Iterable
-from typing import Any, Callable, Iterator, List, Tuple, Union, Optional
+from typing import Any, Callable, Generator, Iterator, List, Tuple, Union, Optional
 from itertools import chain, filterfalse, islice, product, starmap
 from itertools import tee as _tee
 
@@ -168,9 +168,9 @@ class _Pyterator:
         self.__iterator = chunked(self.__iterator, n)
         return self
     
-    def split_at(self, predicate_fn: Callable) -> _Pyterator:
-        self.__iterator = split_at(self.__iterator, predicate_fn)
-        return self
+    def split_at(self, predicate_fn: Callable) -> Generator[_Pyterator]:
+        for it in split_at(self.__iterator, predicate_fn):
+            yield _Pyterator(it)
     
     def product(self, *iterables: Iterable):
         """Cartesian product"""
