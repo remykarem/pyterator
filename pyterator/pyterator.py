@@ -4,7 +4,7 @@ from functools import reduce
 from collections import Counter
 from collections.abc import Iterable
 from typing import Any, Callable, Generator, Iterator, List, Tuple, Union, Optional
-from itertools import chain, filterfalse, islice, product, starmap
+from itertools import chain, filterfalse, islice, product, starmap, repeat
 from itertools import tee as _tee
 
 from more_itertools import (
@@ -188,6 +188,12 @@ class _Pyterator:
         Yield unique elements, preserving order. Remember all elements ever seen.
         """
         return _Pyterator(_unique_everseen(self.__iterator, key))
+
+    def repeat(self, times: int = None) -> _Pyterator:
+        """
+        Repeat elements of sequence.
+        """
+        return _Pyterator(repeat(self.__iterator, times))
 
     # Positional
 
