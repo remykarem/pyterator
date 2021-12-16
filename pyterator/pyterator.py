@@ -189,12 +189,6 @@ class _Pyterator:
         """
         return _Pyterator(_unique_everseen(self.__iterator, key))
 
-    def repeat(self, times: int = None) -> _Pyterator:
-        """
-        Repeat elements of sequence.
-        """
-        return _Pyterator(repeat(self.__iterator, times))
-
     # Positional
 
     def skip(self, n: int) -> _Pyterator:
