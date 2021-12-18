@@ -218,6 +218,7 @@ class _Pyterator:
     def nth(self, n: int, default: Optional[Any] = None) -> Any:
         """Returns the nth element of the iterator.
         If n is larger than the length of the iterator, return default.
+        The underlying iterator is advanced by n elements.
 
         Args:
             n (int): Index of element to return
@@ -228,6 +229,25 @@ class _Pyterator:
             Any: nth element of the iterator
         """
         return next(islice(self.__iterator, n, None), default)
+
+    def islice(self, *args: int) -> Iterator[Any]:
+        """Returns the next n elements. Similar to itertools.islice.
+        The underlying iterator will be advanced by n elements. 
+
+            >>> iterate([9, 8, 7]).islice(2)
+            [9, 8]
+            >>> iterate([9, 8, 7]).islice(2, 3)
+            [7]
+            >>> iterate([9, 8, 6, 5, 7, 4]).islice(1, 6, 2)
+            [8, 5, 4]
+
+        Args:
+            n (int): No. of elements to return
+
+        Returns:
+            Iterator: Iterator object
+        """
+        return islice(self.__iterator, *args)
 
     def take(self, n: int) -> _Pyterator:
         """
