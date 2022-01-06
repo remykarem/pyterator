@@ -3,8 +3,8 @@ from __future__ import annotations
 from functools import reduce
 from collections import Counter
 from collections.abc import Iterable
-from typing import Any, Callable, Generator, Iterator, List, Tuple, Union, Optional
-from itertools import chain, filterfalse, islice, product, starmap, repeat
+from typing import Any, Callable, Generator, Iterator, List, Tuple, Optional
+from itertools import chain, filterfalse, islice, product, starmap
 from itertools import tee as _tee
 
 from more_itertools import (
@@ -140,8 +140,6 @@ class _Pyterator:
         self.__iterator = enumerate(self.__iterator, start)
         return self
 
-
-
     ### Dimensional ###
 
     def chain(self, *iterables: Iterable) -> _Pyterator:
@@ -174,7 +172,7 @@ class _Pyterator:
         for it in split_at(self.__iterator, predicate_fn):
             yield _Pyterator(it)
     
-    def product(self, *iterables: Iterable):
+    def product(self, *iterables: Iterable) -> _Pyterator:
         """Cartesian product"""
         self.__iterator = product(self.__iterator, *iterables)
         return self
@@ -273,6 +271,15 @@ class _Pyterator:
             list: List of elements
         """
         return list(self.__iterator)
+    
+    def to_tuple(self) -> tuple:
+        """
+        Returns a tuple from the iterable's elements.
+
+        Returns:
+            tuple: Tuple of elements
+        """
+        return tuple(self.__iterator)
 
     def to_set(self) -> set:
         """
@@ -342,35 +349,35 @@ class _Pyterator:
         """
         return any(self.__iterator)
 
-    def max(self) -> Union[int, float]:
+    def max(self) -> Any:
         """Gets the max of all elements in the iterable.
 
         Returns:
-            Union[int, float]: Max of all elements in the iterable.
+            Any: Max of all elements in the iterable.
         """
         return max(self.__iterator)
 
-    def min(self) -> Union[int, float]:
+    def min(self) -> Any:
         """Gets the min of all elements in the iterable.
 
         Returns:
-            Union[int, float]: Min of all elements in the iterable.
+            Any: Min of all elements in the iterable.
         """
         return min(self.__iterator)
 
-    def sum(self) -> Union[int, float]:
+    def sum(self) -> Any:
         """Gets the sum of all elements in the iterable.
 
         Returns:
-            Union[int, float]: Sum of all elements in the iterable.
+            Any: Sum of all elements in the iterable.
         """
         return sum(self.__iterator)
 
-    def prod(self) -> Union[int, float]:
+    def prod(self) -> Any:
         """Gets the product of all elements in the iterable.
 
         Returns:
-            Union[int, float]: Product of all elements in the iterable.
+            Any: Product of all elements in the iterable.
         """
         return reduce(lambda x, y: x * y, self.__iterator)
 
@@ -385,10 +392,6 @@ class _Pyterator:
         """
         return sep.join(self.__iterator)
     
-    def custom(self, fn: Callable, *args: Any, **kwargs: Any) -> _Pyterator:
-        self.__iterator = fn(self.__iterator, *args, **kwargs)
-        return self
-
     ### Debug ###
 
     def debug(self) -> None:
