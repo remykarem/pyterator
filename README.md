@@ -314,3 +314,4 @@ Note that these libraries focus on fluent method chaining.
 - [fluent](https://github.com/dwt/fluent)
 - [Simple Smart Pipe](https://github.com/sspipe/sspipe)
 - [pyxtension](https://github.com/asuiu/pyxtension)
+- [pyiter](https://github.com/mokeyish/pyiter)
